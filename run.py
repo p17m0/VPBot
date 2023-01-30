@@ -27,7 +27,7 @@ EMAIL, PASSWORD, ACCESS = 0, 1, 2
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Приветствует пользоателя и создаёт меня для ссылки на чаты."""
     reply_markup = ReplyKeyboardMarkup([['/access - Получение доступа к группам.'],
-                                        ['/registration - Регистрация.'],
+                                        ['/registration - Регистрация на сайте.'],
                                         ['/help - Помощь с ботом.'],])
 
     await update.message.reply_text(text='Здравствуйте! Воспользуйтесь кнопками.', reply_markup=reply_markup)
@@ -68,10 +68,10 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # тут создание пользователя бусти
     if logic.check_user(email):
         await update.message.reply_text(
-        "Вы уже зарегистрированы.",
+            "Вы уже зарегистрированы.",
         )
         return ConversationHandler.END
-    logic.create_user(email, password, user.id)
+
     # !!! Проверка доступа пользователя !!!
     info_1 = await context.bot.get_chat_member(chat_id=-1001869016733, user_id=user.id)
     info_2 = await context.bot.get_chat_member(chat_id=-1001811351703, user_id=user.id)
@@ -80,8 +80,14 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         access = 1
     if info_2.status == 'member': # 35$
         access = 2
-    if info_3.status == 'member':# 100$
+    if info_3.status == 'member': # 100$
         access = 3
+    if info_1.status != 'member' or info_2.status != 'member' or info_3.status != 'member':
+        await update.message.reply_text(
+            "Вы не находитесь ни в одной из групп. У вас нет доступа.",
+        )
+        return ConversationHandler.END
+    logic.create_user(email, password, user.id)
     # !!! Конец проверки !!!
     logic.create_user_subscribe_boosty(email, access)
     logger.info("email of %s: %s", user.first_name, update.message.text)
@@ -198,8 +204,8 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Проверка email."""
     email = update.message.text
     user = update.message.from_user
-    if logic.check_tg_id_in_db(email): # Если пользователь есть в дб
-        access = logic.check_user_category_website(user.id) # ВОТ ЭТО ПОТЕСТИТЬ !!!!
+    if logic.check_tg_id_in_db(email): # Если telegram_id пользователь есть в дб
+        access = logic.check_user_category_website(user.id)
     elif logic.check_user(email): # Проверка есть ли вообще такой пользователь
         logic.add_user_tg(email, user.id) # Добавить пользователю tg_id
         access = logic.check_user_category_website(user.id) # Проверка доступа по tg_id
@@ -211,19 +217,19 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if access == 1: # 1$
         link = await context.bot.create_chat_invite_link(chat_id=-1001869016733,
-                                                     member_limit=1,)
+                                                         member_limit=1,)
         await update.message.reply_text(text=link["invite_link"])
-    if access == 2: # 15$
+    if access == 2: # 35$
         link = await context.bot.create_chat_invite_link(chat_id=-1001811351703,
-                                                     member_limit=1,)
+                                                         member_limit=1,)
         await update.message.reply_text(text=link["invite_link"])
     if access == 3: # 100$
         link_3 = await context.bot.create_chat_invite_link(chat_id=-1001634731374,
-                                                     member_limit=1,)
+                                                           member_limit=1,)
         link_2 = await context.bot.create_chat_invite_link(chat_id=-1001811351703,
-                                                     member_limit=1,)
+                                                           member_limit=1,)
         link_1 = await context.bot.create_chat_invite_link(chat_id=-1001869016733,
-                                                     member_limit=1,)
+                                                           member_limit=1,)
         await update.message.reply_text(text=f"Чат 100$ {link_3['invite_link']}\nЧат 35$ {link_2['invite_link']}\nЧат 1$ {link_1['invite_link']}")
 
     return ConversationHandler.END
@@ -232,47 +238,54 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def clean_groups(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Запуск проверки пользователей и бан в случае истечения подписки."""
     user = update.message.from_user
-    context.job_queue.run_repeating(alarm, 1, chat_id=user.id)
+    context.job_queue.run_repeating(alarm, 3600, chat_id=user.id) # !!!!!!
 
 
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the alarm message."""
     all_id = logic.take_all_id()
+    print(all_id)
     count = 0
     for i in all_id:
+        print(all_id)
         subscriptions = logic.check_subscription_website_by_date(i)
         for subscription in subscriptions:
             # !!! Проверка доступа пользователя !!!
-            info_1 = await context.bot.get_chat_member(chat_id=-1001869016733, user_id=i)
-            info_2 = await context.bot.get_chat_member(chat_id=-1001811351703, user_id=i)
-            info_3 = await context.bot.get_chat_member(chat_id=-1001634731374, user_id=i)
-            if subscription[0] == '712':
-                if subscription[1] == 0:
-                    if info_1.status == 'member':
-                        if logic.is_user_boosty(i):
-                            email = logic.take_user_email_by_id(i)
-                            logic.create_user_subscribe_boosty(email, 1)
-                            continue
-                        count += 1
-                        await context.bot.ban_chat_member(chat_id=-1001869016733, user_id=i, until_date=1)
-            elif subscription[0] == '873':
-                if subscription[1] == 0:
-                    if info_2.status == 'member':
-                        if logic.is_user_boosty(i):
-                            email = logic.take_user_email_by_id(i)
-                            logic.create_user_subscribe_boosty(email, 2)
-                        count += 1
-                        await context.bot.ban_chat_member(chat_id=-1001811351703, user_id=i, until_date=1)
-            else:
-                if subscription[1] == 0:
-                    if info_3.status == 'member':
-                        if logic.is_user_boosty(i):
-                            email = logic.take_user_email_by_id(i)
-                            logic.create_user_subscribe_boosty(email, 3)
-                        count += 1
-                        await context.bot.ban_chat_member(chat_id=-1001869016733, user_id=i, until_date=1)
-                        await context.bot.ban_chat_member(chat_id=-1001811351703, user_id=i, until_date=1)
-                        await context.bot.ban_chat_member(chat_id=-1001634731374, user_id=i, until_date=1)
+            try:
+                info_1 = await context.bot.get_chat_member(chat_id=-1001869016733, user_id=i)
+                info_2 = await context.bot.get_chat_member(chat_id=-1001811351703, user_id=i)
+                info_3 = await context.bot.get_chat_member(chat_id=-1001634731374, user_id=i)
+                if subscription[0] == '712':
+                    if subscription[1] == 0:
+                        if info_1.status == 'member':
+                            if logic.is_user_boosty(i):
+                                email = logic.take_user_email_by_id(i)
+                                logic.create_user_subscribe_boosty(email, 1)
+                            else:
+                                count += 1
+                                await context.bot.ban_chat_member(chat_id=-1001869016733, user_id=i, until_date=1)
+                elif subscription[0] == '873':
+                    if subscription[1] == 0:
+                        if info_2.status == 'member':
+                            if logic.is_user_boosty(i):
+                                email = logic.take_user_email_by_id(i)
+                                logic.create_user_subscribe_boosty(email, 2)
+                            else:
+                                await context.bot.ban_chat_member(chat_id=-1001811351703, user_id=i, until_date=1)
+                                count += 1
+                else:
+                    if subscription[1] == 0:
+                        if info_3.status == 'member':
+                            if logic.is_user_boosty(i):
+                                email = logic.take_user_email_by_id(i)
+                                logic.create_user_subscribe_boosty(email, 3)
+                            else:
+                                count += 1
+                                await context.bot.ban_chat_member(chat_id=-1001869016733, user_id=i, until_date=1)
+                                await context.bot.ban_chat_member(chat_id=-1001811351703, user_id=i, until_date=1)
+                                await context.bot.ban_chat_member(chat_id=-1001634731374, user_id=i, until_date=1)
+            except Exception as e:
+                print(e)
             # !!! Конец проверки !!!
     chat_id = context.job.chat_id
     await context.bot.send_message(chat_id=chat_id, text=f'Забанено людей без подписок: {count}')
@@ -286,7 +299,7 @@ def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
     persistence = PicklePersistence(filepath="conversationbot")
-    application = Application.builder().token("").persistence(persistence).build()
+    application = Application.builder().token("TOKEN").persistence(persistence).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('help', help_command))
