@@ -12,7 +12,7 @@ from telegram.ext import (Application,
                           ConversationHandler)
 
 import logic
-import data
+
 
 
 logging.basicConfig(
