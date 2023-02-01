@@ -76,17 +76,17 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     info_1 = await context.bot.get_chat_member(chat_id=-1001869016733, user_id=user.id)
     info_2 = await context.bot.get_chat_member(chat_id=-1001811351703, user_id=user.id)
     info_3 = await context.bot.get_chat_member(chat_id=-1001634731374, user_id=user.id)
+    if info_1.status != 'member' and info_2.status != 'member' and info_3.status != 'member':
+        await update.message.reply_text(
+            "Вы не находитесь ни в одной из групп. У вас нет доступа к сайту.",
+        )
+        return ConversationHandler.END
     if info_1.status == 'member': # 1$
         access = 1
     if info_2.status == 'member': # 35$
         access = 2
     if info_3.status == 'member': # 100$
         access = 3
-    if info_1.status != 'member' or info_2.status != 'member' or info_3.status != 'member':
-        await update.message.reply_text(
-            "Вы не находитесь ни в одной из групп. У вас нет доступа.",
-        )
-        return ConversationHandler.END
     logic.create_user(email, password, user.id)
     # !!! Конец проверки !!!
     logic.create_user_subscribe_boosty(email, access)
