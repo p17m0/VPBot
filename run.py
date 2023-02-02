@@ -23,6 +23,30 @@ logger = logging.getLogger(__name__)
 
 EMAIL, PASSWORD, ACCESS = 0, 1, 2
 
+HELLO_TEXT = """
+Добрый день. Вас приветствует бот Перемен.
+
+⚠️ Внимательно знакомьтесь с инструкцией перед регистрацией.
+
+Её можно найти по ссылке: https://eraperemen.info/wp-content/uploads/2022/12/instrukcziya.pdf
+
+
+⚠️ Избегайте распространенных ошибок
+
+1. Какая у вас почта в бусти не важно.
+2. Для того что бы получить доступ на сайт вам необходимо ЧЕТКО следовать описанным ниже шагам;
+2.1. Оплата на Boosty
+2.2. Попадаете в группу
+2.3. Находите бота в группе или по ссылке https://t.me/vremya_peremen_admin_bot
+2.4. Нажимаете зарегистрироваться, вводите почту (не обязательно с Boosty),
+2.5. Придумываете свой пароль
+2.6. Поздравляю ⭐️ Вы зарегистрированы на сайте eraperemen.info
+
+⚠️ Если не сработало
+
+Выйди из чата и снова зайти. Проделать все что описано выше еще раз
+"""
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Приветствует пользоателя и создаёт меня для ссылки на чаты."""
@@ -30,7 +54,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                                         ['/registration - Регистрация на сайте.'],
                                         ['/help - Помощь с ботом.'],])
 
-    await update.message.reply_text(text='Здравствуйте! Воспользуйтесь кнопками.', reply_markup=reply_markup)
+    await update.message.reply_text(text=HELLO_TEXT, reply_markup=reply_markup)
 
 
 async def registration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -82,12 +106,14 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             "Вы не находитесь ни в одной из групп. У вас нет доступа к сайту.",
         )
         return ConversationHandler.END
+
     if info_1.status == 'member' or info_1.status == 'administrator': # 1$
         access = 1
     if info_2.status == 'member' or info_1.status == 'administrator': # 35$
         access = 2
     if info_3.status == 'member' or info_1.status == 'administrator': # 100$
         access = 3
+
     logic.create_user(email, password, user.id)
     # !!! Конец проверки !!!
     logic.create_user_subscribe_boosty(email, access)
