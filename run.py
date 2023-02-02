@@ -71,7 +71,7 @@ EMAIL_TEXT_CHECK = """
 HELP_TEXT = """
 🔧 Если у Вас возникли какие-то проблемы обратитесь в поддержку в телеграмм  @eraperemensupport
 
-💭<i>Хотим обратить ваше внимание что мы пока находимся на стадии тестирования нового сервиса. Будем благодарны за отзывы и понимание.</i>
+💭Хотим обратить ваше внимание что мы пока находимся на стадии тестирования нового сервиса. Будем благодарны за отзывы и понимание.
 """
 
 DENY_TEXT = """
@@ -122,7 +122,7 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     email = user_data[user.id]['email']
 
     # тут создание пользователя бусти
-    if logic.check_user(email) or logic.check_tg_id_in_db(email):
+    if logic.check_user(email):
         await update.message.reply_text(
             "Вы уже зарегистрированы на сайте и у вас есть доступ, воспользуйтесь командой /access.",
         )
@@ -148,7 +148,6 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     logic.create_user(email, password, user.id)
     # !!! Конец проверки !!!
-    logic.add_user_tg(email, user.id)
     logic.create_user_subscribe_boosty(email, access)
     logger.info("email of %s: %s", user.first_name, update.message.text)
     await update.message.reply_text(
