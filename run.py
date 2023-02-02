@@ -47,6 +47,25 @@ HELLO_TEXT = """
 Выйди из чата и снова зайти. Проделать все что описано выше еще раз
 """
 
+PASSWORD_TEXT = """
+🔐 Напишите ваш пароль. Для отмены нажмите или пропишите /cancel.
+
+💭 Придумайте надежный пароль (123456 не подойдет😊). После вы сможете восстановить его на сайте.
+"""
+
+EMAIL_TEXT = """
+✉️ Напишите ваш email
+
+Для отмены действия регистрации нажмите или пропишите  /cancel
+
+💭 E-mail может быть любым. Не обязательно тот, что вы указали на Boosty. С помощью этой почты, по окончанию регистрации, вы сможете войти на сайт.
+"""
+
+EMAIL_TEXT_CHECK = """
+✉️ Напишите ваш email для проверки доступа
+
+💭 Вы должны быть зарегистрированы на сайте и должна быть оплачена подписка. Введите вашу почту и вы получите доступ в группу.
+"""
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Приветствует пользоателя и создаёт меня для ссылки на чаты."""
@@ -63,7 +82,7 @@ async def registration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     user = update.message.from_user
     user_data[user.id] = {}
     await update.message.reply_text(
-        "Напишите ваш email. Для отмены действия регистрации пропишите /cancel.",
+        text=EMAIL_TEXT,
     )
     return EMAIL
 
@@ -76,7 +95,7 @@ async def email(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     logger.info("name of %s: %s", user.first_name, update.message.text)
     await update.message.reply_text(
-        "Придумайте пароль. Для отмены действия регистрации пропишите /cancel.",
+        text=PASSWORD_TEXT,
     )
 
     return PASSWORD
@@ -119,8 +138,7 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     logic.create_user_subscribe_boosty(email, access)
     logger.info("email of %s: %s", user.first_name, update.message.text)
     await update.message.reply_text(
-        f"Регистрация окончена. Ваш аккаунт создан. Email: {email}. Password: {password}. Теперь Вам доступен сайт https://eraperemen.info/",
-    )
+        f"✅ Регистрация окончена\nВаш аккаунт создан\nEmail:{email}\nPassword:{password}\nТеперь перейдите на наш сайт eraperemen.info и получите доступ к закрытому разделу.\n⭐️ Приятного пользования",)
     user_data[user.id] = {}
     return ConversationHandler.END
 
@@ -222,7 +240,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def access(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Начало проверки доступа."""
     await update.message.reply_text(
-        "Напишите ваш email для проверки доступа.",
+        text=EMAIL_TEXT_CHECK,
     )
     return ACCESS
 
