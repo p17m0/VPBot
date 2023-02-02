@@ -63,7 +63,7 @@ async def registration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     user = update.message.from_user
     user_data[user.id] = {}
     await update.message.reply_text(
-        "Напишите ваш email. Для отмены пропишите /cancel.",
+        "Напишите ваш email. Для отмены действия регистрации пропишите /cancel.",
     )
     return EMAIL
 
@@ -76,7 +76,7 @@ async def email(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     logger.info("name of %s: %s", user.first_name, update.message.text)
     await update.message.reply_text(
-        "Напишите ваш password. Для отмены пропишите /cancel.",
+        "Придумайте пароль. Для отмены действия регистрации пропишите /cancel.",
     )
 
     return PASSWORD
