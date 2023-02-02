@@ -76,16 +76,17 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     info_1 = await context.bot.get_chat_member(chat_id=-1001869016733, user_id=user.id)
     info_2 = await context.bot.get_chat_member(chat_id=-1001811351703, user_id=user.id)
     info_3 = await context.bot.get_chat_member(chat_id=-1001634731374, user_id=user.id)
+    print(info_1.status, info_2.status, info_3.status)
     if info_1.status != 'member' and info_2.status != 'member' and info_3.status != 'member':
         await update.message.reply_text(
             "Вы не находитесь ни в одной из групп. У вас нет доступа к сайту.",
         )
         return ConversationHandler.END
-    if info_1.status == 'member': # 1$
+    if info_1.status == 'member' or info_1.status == 'administrator': # 1$
         access = 1
-    if info_2.status == 'member': # 35$
+    if info_2.status == 'member' or info_1.status == 'administrator': # 35$
         access = 2
-    if info_3.status == 'member': # 100$
+    if info_3.status == 'member' or info_1.status == 'administrator': # 100$
         access = 3
     logic.create_user(email, password, user.id)
     # !!! Конец проверки !!!
@@ -205,10 +206,10 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
     email = update.message.text
     user = update.message.from_user
     if logic.check_tg_id_in_db(email): # Если telegram_id пользователь есть в дб
-        access = logic.check_user_category_website(user.id)
+        access = logic.check_user_category_website_by_subscription(user.id)
     elif logic.check_user(email): # Проверка есть ли вообще такой пользователь
         logic.add_user_tg(email, user.id) # Добавить пользователю tg_id
-        access = logic.check_user_category_website(user.id) # Проверка доступа по tg_id
+        access = logic.check_user_category_website_by_subscription(user.id) # Проверка доступа по tg_id
     else:
         await update.message.reply_text(
             "У Вас нет доступа. Обратитесь в поддержку.",
@@ -218,11 +219,11 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if access == 1: # 1$
         link = await context.bot.create_chat_invite_link(chat_id=-1001869016733,
                                                          member_limit=1,)
-        await update.message.reply_text(text=link["invite_link"])
+        await update.message.reply_text(text=f"Чат 1$ {link['invite_link']}")
     if access == 2: # 35$
         link = await context.bot.create_chat_invite_link(chat_id=-1001811351703,
                                                          member_limit=1,)
-        await update.message.reply_text(text=link["invite_link"])
+        await update.message.reply_text(text=f"Чат 15$ {link['invite_link']}")
     if access == 3: # 100$
         link_3 = await context.bot.create_chat_invite_link(chat_id=-1001634731374,
                                                            member_limit=1,)
