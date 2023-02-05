@@ -1,6 +1,7 @@
 import logging
+import os
 from typing import Optional, Tuple
-
+from dotenv import load_dotenv
 from telegram import Chat, ChatMember, ChatMemberUpdated, Update, ReplyKeyboardMarkup
 from telegram.ext import (Application,
                           MessageHandler,
@@ -12,7 +13,11 @@ from telegram.ext import (Application,
                           ConversationHandler)
 
 import logic
-
+from constants import (EMAIL, PASSWORD, ACCESS,
+                       HELLO_TEXT, PASSWORD_TEXT,
+                       EMAIL_TEXT, EMAIL_TEXT_CHECK,
+                       HELP_TEXT, DENY_TEXT,
+                       GROUP_1, GROUP_2, GROUP_3)
 
 
 logging.basicConfig(
@@ -21,64 +26,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-EMAIL, PASSWORD, ACCESS = 0, 1, 2
-
-HELLO_TEXT = """
-Добрый день. Вас приветствует бот Перемен.
-
-⚠️ Внимательно знакомьтесь с инструкцией перед регистрацией.
-
-Её можно найти по ссылке: https://eraperemen.info/wp-content/uploads/2022/12/instrukcziya.pdf
-
-
-⚠️ Избегайте распространенных ошибок
-
-1. Какая у вас почта в бусти не важно.
-2. Для того что бы получить доступ на сайт вам необходимо ЧЕТКО следовать описанным ниже шагам;
-2.1. Оплата на Boosty
-2.2. Попадаете в группу
-2.3. Находите бота в группе или по ссылке https://t.me/vremya_peremen_admin_bot
-2.4. Нажимаете зарегистрироваться, вводите почту (не обязательно с Boosty),
-2.5. Придумываете свой пароль
-2.6. Поздравляю ⭐️ Вы зарегистрированы на сайте eraperemen.info
-
-⚠️ Если не сработало
-
-Выйди из чата и снова зайти. Проделать все что описано выше еще раз
-"""
-
-PASSWORD_TEXT = """
-🔐 Придумайте  пароль
-Для отмены нажмите или пропишите /cancel.
-
-💭 Придумайте надежный пароль (123456 не подойдет😊). После вы сможете восстановить его на сайте .
-"""
-
-EMAIL_TEXT = """
-✉️ Напишите ваш email
-
-Для отмены действия регистрации нажмите или пропишите  /cancel
-
-💭 E-mail может быть любым. Не обязательно тот, что вы указали на Boosty. С помощью этой почты, по окончанию регистрации, вы сможете войти на сайт.
-"""
-
-EMAIL_TEXT_CHECK = """
-✉️ Напишите ваш email для проверки доступа
-
-💭 Вы должны быть зарегистрированы на сайте и должна быть оплачена подписка. Введите вашу почту и вы получите доступ в группу.
-"""
-
-HELP_TEXT = """
-🔧 Если у Вас возникли какие-то проблемы обратитесь в поддержку в телеграмм  @eraperemensupport
-
-💭Хотим обратить ваше внимание что мы пока находимся на стадии тестирования нового сервиса. Будем благодарны за отзывы и понимание.
-"""
-
-DENY_TEXT = """
-❌ У вас нет доступа
-
-Обратитесь в поддержку @eraperemensupport
-"""
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Приветствует пользоателя и создаёт меня для ссылки на чаты."""
@@ -129,9 +76,9 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         return ConversationHandler.END
 
     # !!! Проверка доступа пользователя !!!
-    info_1 = await context.bot.get_chat_member(chat_id=-1001869016733, user_id=user.id)
-    info_2 = await context.bot.get_chat_member(chat_id=-1001811351703, user_id=user.id)
-    info_3 = await context.bot.get_chat_member(chat_id=-1001634731374, user_id=user.id)
+    info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=user.id)
+    info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=user.id)
+    info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=user.id)
     print(info_1.status, info_2.status, info_3.status)
     if info_1.status != 'member' and info_2.status != 'member' and info_3.status != 'member':
         await update.message.reply_text(
@@ -237,6 +184,7 @@ async def greet_chat_members(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
     chat = update.effective_chat
     user = update.chat_member.chat.id
+    # Оставить на будущее
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -262,11 +210,11 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Проверка email."""
     email = update.message.text
     user = update.message.from_user
-    if logic.check_tg_id_in_db(email): # Если telegram_id пользователь есть в дб
+    if logic.check_tg_id_in_db(email):
         access = logic.check_user_category_website_by_subscription(user.id)
-    elif logic.check_user(email): # Проверка есть ли вообще такой пользователь
-        logic.add_user_tg(email, user.id) # Добавить пользователю tg_id
-        access = logic.check_user_category_website_by_subscription(user.id) # Проверка доступа по tg_id
+    elif logic.check_user(email):
+        logic.add_user_tg(email, user.id)
+        access = logic.check_user_category_website_by_subscription(user.id)
     else:
         await update.message.reply_text(
             "У Вас нет доступа. Обратитесь в поддержку.",
@@ -274,19 +222,19 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
 
     if access == 1: # 1$
-        link = await context.bot.create_chat_invite_link(chat_id=-1001869016733,
+        link = await context.bot.create_chat_invite_link(chat_id=GROUP_1,
                                                          member_limit=1,)
         await update.message.reply_text(text=f"Чат 1$ {link['invite_link']}")
     if access == 2: # 35$
-        link = await context.bot.create_chat_invite_link(chat_id=-1001811351703,
+        link = await context.bot.create_chat_invite_link(chat_id=GROUP_2,
                                                          member_limit=1,)
         await update.message.reply_text(text=f"Чат 15$ {link['invite_link']}")
     if access == 3: # 100$
-        link_3 = await context.bot.create_chat_invite_link(chat_id=-1001634731374,
+        link_3 = await context.bot.create_chat_invite_link(chat_id=GROUP_3,
                                                            member_limit=1,)
-        link_2 = await context.bot.create_chat_invite_link(chat_id=-1001811351703,
+        link_2 = await context.bot.create_chat_invite_link(chat_id=GROUP_2,
                                                            member_limit=1,)
-        link_1 = await context.bot.create_chat_invite_link(chat_id=-1001869016733,
+        link_1 = await context.bot.create_chat_invite_link(chat_id=GROUP_1,
                                                            member_limit=1,)
         await update.message.reply_text(text=f"Чат 100$ {link_3['invite_link']}\nЧат 35$ {link_2['invite_link']}\nЧат 1$ {link_1['invite_link']}")
 
@@ -310,9 +258,9 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
         for subscription in subscriptions:
             # !!! Проверка доступа пользователя !!!
             try:
-                info_1 = await context.bot.get_chat_member(chat_id=-1001869016733, user_id=i)
-                info_2 = await context.bot.get_chat_member(chat_id=-1001811351703, user_id=i)
-                info_3 = await context.bot.get_chat_member(chat_id=-1001634731374, user_id=i)
+                info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=i)
+                info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=i)
+                info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=i)
                 if subscription[0] == '712':
                     if subscription[1] == 0:
                         if info_1.status == 'member':
@@ -321,7 +269,7 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
                                 logic.create_user_subscribe_boosty(email, 1)
                             else:
                                 count += 1
-                                await context.bot.ban_chat_member(chat_id=-1001869016733, user_id=i, until_date=1)
+                                await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i, until_date=1)
                 elif subscription[0] == '873':
                     if subscription[1] == 0:
                         if info_2.status == 'member':
@@ -329,7 +277,7 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
                                 email = logic.take_user_email_by_id(i)
                                 logic.create_user_subscribe_boosty(email, 2)
                             else:
-                                await context.bot.ban_chat_member(chat_id=-1001811351703, user_id=i, until_date=1)
+                                await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
                                 count += 1
                 else:
                     if subscription[1] == 0:
@@ -339,9 +287,9 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
                                 logic.create_user_subscribe_boosty(email, 3)
                             else:
                                 count += 1
-                                await context.bot.ban_chat_member(chat_id=-1001869016733, user_id=i, until_date=1)
-                                await context.bot.ban_chat_member(chat_id=-1001811351703, user_id=i, until_date=1)
-                                await context.bot.ban_chat_member(chat_id=-1001634731374, user_id=i, until_date=1)
+                                await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i, until_date=1)
+                                await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
+                                await context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i, until_date=1)
             except Exception as e:
                 print(e)
             # !!! Конец проверки !!!
@@ -355,9 +303,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main() -> None:
     """Start the bot."""
-    # Create the Application and pass it your bot's token.
+    token = os.getenv('TOKEN')
     persistence = PicklePersistence(filepath="conversationbot")
-    application = Application.builder().token("5933770954:AAEpoucz37GNQ-t8jCeGBnyNrSKCGtWCH_I").persistence(persistence).build()
+    application = Application.builder().token(token).persistence(persistence).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('help', help_command))
