@@ -58,5 +58,5 @@ HELP_TEXT = """
 DENY_TEXT = """
 ❌ У вас нет доступа
 
-Обратитесь в поддержку @eraperemensupport
+Обратитесь в поддержку @supporterafinans
 """

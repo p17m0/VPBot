@@ -69,7 +69,7 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     email = user_data[user.id]['email']
 
     # тут создание пользователя бусти
-    if logic.check_user(email):
+    if logic.check_user(email) or logic.check_tg_id_in_db(email):
         await update.message.reply_text(
             "Вы уже зарегистрированы на сайте и у вас есть доступ, воспользуйтесь командой /access.",
         )
