@@ -303,6 +303,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main() -> None:
     """Start the bot."""
+    load_dotenv()
     token = os.getenv('TOKEN')
     persistence = PicklePersistence(filepath="conversationbot")
     application = Application.builder().token(token).persistence(persistence).build()
