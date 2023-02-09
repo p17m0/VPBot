@@ -245,6 +245,8 @@ async def clean_groups(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the alarm message."""
+    chat_id = context.job.chat_id
+    await context.bot.send_message(chat_id=chat_id, text='Начат бан пользователей')
     boosty_1 = logic.take_all_id_boosty_category_1()
     boosty_2 = logic.take_all_id_boosty_category_2()
     boosty_3 = logic.take_all_id_boosty_category_3()
