@@ -320,7 +320,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(text=HELP_TEXT)
 
 async def full_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_document('bot.log')
+    await update.message.reply_document('home/bot/VPBot/bot.log')
 
 def main() -> None:
     """Start the bot."""
