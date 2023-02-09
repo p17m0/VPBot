@@ -22,7 +22,7 @@ from constants import (EMAIL, PASSWORD, ACCESS,
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO,
-    filename='bot.log'
+    filename='home/bot/VPBot/bot.log'
 )
 
 logger = logging.getLogger(__name__)
