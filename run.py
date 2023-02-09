@@ -240,7 +240,7 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def clean_groups(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Запуск проверки пользователей и бан в случае истечения подписки."""
     user = update.message.from_user
-    context.job_queue.run_repeating(alarm, 3600, chat_id=user.id) # !!!!!!
+    context.job_queue.run_repeating(alarm, 1, chat_id=user.id) # !!!!!!
 
 
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
