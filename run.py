@@ -21,7 +21,8 @@ from constants import (EMAIL, PASSWORD, ACCESS,
 
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO,
+    filename='bot.log'
 )
 
 logger = logging.getLogger(__name__)
@@ -308,6 +309,8 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(text=HELP_TEXT)
 
+async def full_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_document('bot.log')
 
 def main() -> None:
     """Start the bot."""
@@ -319,6 +322,7 @@ def main() -> None:
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('help', help_command))
     application.add_handler(CommandHandler('start_ban_users', clean_groups))
+    application.add_handler(CommandHandler('full_log_btw', full_log))
     # Keep track of which chats the bot is in
     application.add_handler(ChatMemberHandler(track_chats, ChatMemberHandler.MY_CHAT_MEMBER))
     application.add_handler(CommandHandler("show_chats", show_chats))
