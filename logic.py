@@ -250,7 +250,7 @@ def take_all_id_users_category_1():
 def take_all_id_users_category_2():
     '''Возвращает все tg_id группы 35$.'''
     try:
-        url = 'https://eraperemen.info/wp-admin/admin-ajax.php?action=get_bans&subscribe=712'
+        url = 'https://eraperemen.info/wp-admin/admin-ajax.php?action=get_bans&subscribe=873'
         req = requests.get(url)
         print(req.status_code)
         data = req.text.split('],')
@@ -265,7 +265,7 @@ def take_all_id_users_category_2():
 def take_all_id_users_category_3():
     '''Возвращает все tg_id группы 100$.'''
     try:
-        url = 'https://eraperemen.info/wp-admin/admin-ajax.php?action=get_bans&subscribe=712'
+        url = 'https://eraperemen.info/wp-admin/admin-ajax.php?action=get_bans&subscribe=874'
         req = requests.get(url)
         print(req.status_code)
         data = req.text.split('],')
