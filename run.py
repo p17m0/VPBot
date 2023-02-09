@@ -1,7 +1,7 @@
 import logging
 import os
 from typing import Optional, Tuple
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 from telegram import Chat, ChatMember, ChatMemberUpdated, Update, ReplyKeyboardMarkup
 from telegram.ext import (Application,
                           MessageHandler,
@@ -324,10 +324,10 @@ async def full_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main() -> None:
     """Start the bot."""
-    # load_dotenv()
-    # token = os.getenv('TOKEN')
+    load_dotenv()
+    token = os.getenv('TOKEN')
     persistence = PicklePersistence(filepath="conversationbot")
-    application = Application.builder().token('5596869051:AAG6MEKfAbLxnohRQfxRSwxsD7VGZbOq7cU').persistence(persistence).build()
+    application = Application.builder().token(token).persistence(persistence).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('help', help_command))
