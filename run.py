@@ -81,9 +81,9 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         return ConversationHandler.END
 
     # !!! Проверка доступа пользователя !!!
-    info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=user.id)
-    info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=user.id)
-    info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=user.id)
+    info_1 = context.bot.get_chat_member(chat_id=GROUP_1, user_id=user.id)
+    info_2 = context.bot.get_chat_member(chat_id=GROUP_2, user_id=user.id)
+    info_3 = context.bot.get_chat_member(chat_id=GROUP_3, user_id=user.id)
 
     if info_1.status != 'member' and info_2.status != 'member' and info_3.status != 'member':
         logger.info("Registration: %s-%s не является участником групп", user.first_name, update.message.text)
@@ -228,19 +228,19 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
 
     if access == 1: # 1$
-        link = await context.bot.create_chat_invite_link(chat_id=GROUP_1,
+        link = context.bot.create_chat_invite_link(chat_id=GROUP_1,
                                                          member_limit=1,)
         await update.message.reply_text(text=f"Чат 1$ {link['invite_link']}")
     if access == 2: # 35$
-        link = await context.bot.create_chat_invite_link(chat_id=GROUP_2,
+        link = context.bot.create_chat_invite_link(chat_id=GROUP_2,
                                                          member_limit=1,)
         await update.message.reply_text(text=f"Чат 15$ {link['invite_link']}")
     if access == 3: # 100$
-        link_3 = await context.bot.create_chat_invite_link(chat_id=GROUP_3,
+        link_3 = context.bot.create_chat_invite_link(chat_id=GROUP_3,
                                                            member_limit=1,)
-        link_2 = await context.bot.create_chat_invite_link(chat_id=GROUP_2,
+        link_2 = context.bot.create_chat_invite_link(chat_id=GROUP_2,
                                                            member_limit=1,)
-        link_1 = await context.bot.create_chat_invite_link(chat_id=GROUP_1,
+        link_1 = context.bot.create_chat_invite_link(chat_id=GROUP_1,
                                                            member_limit=1,)
         await update.message.reply_text(text=f"Чат 100$ {link_3['invite_link']}\nЧат 35$ {link_2['invite_link']}\nЧат 1$ {link_1['invite_link']}")
     logger.info("Access: %s-%s получил ссылки на группы", user.first_name, update.message.text)
@@ -257,7 +257,7 @@ async def clean_groups(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the alarm message."""
     chat_id = context.job.chat_id
-    await context.bot.send_message(chat_id=chat_id, text='Начат бан пользователей.')
+    context.bot.send_message(chat_id=chat_id, text='Начат бан пользователей.')
     boosty_1 = logic.take_all_id_boosty_category_1()
     boosty_2 = logic.take_all_id_boosty_category_2()
     boosty_3 = logic.take_all_id_boosty_category_3()
@@ -272,48 +272,48 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
         if i == '':
             continue
         count += 1
-        await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i)
+        context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i)
     for i in users_2:
         if i == '':
             continue
         count += 1
-        await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i)
+        context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i)
     for i in users_3:
         if i == '':
             continue
         count += 1
-        await context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i)
+        context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i)
 
     for i in boosty_1:
         if i == '':
             continue
-        info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=i)
+        info_1 = context.bot.get_chat_member(chat_id=GROUP_1, user_id=i)
         if info_1.status == 'member':
             logic.create_user_subscribe_boosty(email, 1)
         else:
             count += 1
-            await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i)
+            context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i)
     for i in boosty_2:
         if i == '':
             continue
-        info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=i)
+        info_2 = context.bot.get_chat_member(chat_id=GROUP_2, user_id=i)
         if info_2.status == 'member':
             logic.create_user_subscribe_boosty(email, 2)
         else:
             count += 1
-            await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
+            context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
     for i in boosty_3:
         if i == '':
             continue
-        info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=i)
+        info_3 = context.bot.get_chat_member(chat_id=GROUP_3, user_id=i)
         if info_3.status == 'member':
             logic.create_user_subscribe_boosty(email, 3)
         else:
             count += 1
-            await context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i, until_date=1)
+            context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i, until_date=1)
 
     chat_id = context.job.chat_id
-    await context.bot.send_message(chat_id=chat_id, text=f'Забанено людей без подписок: {count}')
+    context.bot.send_message(chat_id=chat_id, text=f'Забанено людей без подписок: {count}')
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
