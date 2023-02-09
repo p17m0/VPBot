@@ -1,7 +1,7 @@
 import logging
 import os
 from typing import Optional, Tuple
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from telegram import Chat, ChatMember, ChatMemberUpdated, Update, ReplyKeyboardMarkup
 from telegram.ext import (Application,
                           MessageHandler,
@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Приветствует пользоателя и создаёт меня для ссылки на чаты."""
+    user = update.message.from_user
+    logger.info("Start: %s: %s начал регистрацию", user.first_name, update.message.text)
     reply_markup = ReplyKeyboardMarkup([['/access - Получение доступа к группам.'],
                                         ['/registration - Регистрация на сайте.'],
                                         ['/help - Помощь с ботом.'],])
@@ -42,6 +44,7 @@ async def registration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     user_data = context.user_data
     user = update.message.from_user
     user_data[user.id] = {}
+    logger.info("Registration: %s: %s начал регистрацию", user.first_name, update.message.text)
     await update.message.reply_text(
         text=EMAIL_TEXT,
     )
@@ -54,7 +57,7 @@ async def email(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_data = context.user_data
     user_data[user.id].update({'email': update.message.text})
 
-    logger.info("name of %s: %s", user.first_name, update.message.text)
+    logger.info("Registration: %s-%s ввёл email", user.first_name, update.message.text)
     await update.message.reply_text(
         text=PASSWORD_TEXT,
     )
@@ -71,7 +74,7 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     # тут создание пользователя бусти
     if logic.check_user(email) or logic.check_tg_id_in_db(email):
-        logger.info("name of %s: %s не смог зарегистрироваться", user.first_name, update.message.text)
+        logger.info("Registration: %s-%s не смог зарегистрироваться", user.first_name, update.message.text)
         await update.message.reply_text(
             "Вы уже зарегистрированы на сайте и у вас есть доступ, воспользуйтесь командой /access.",
         )
@@ -81,8 +84,9 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=user.id)
     info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=user.id)
     info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=user.id)
-    print(info_1.status, info_2.status, info_3.status)
+
     if info_1.status != 'member' and info_2.status != 'member' and info_3.status != 'member':
+        logger.info("Registration: %s-%s не является участником групп", user.first_name, update.message.text)
         await update.message.reply_text(
             text=DENY_TEXT,
         )
@@ -102,7 +106,7 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
         f"✅ Регистрация окончена\nВаш аккаунт создан\nEmail:{email}\nPassword:{password}\nТеперь перейдите на наш сайт eraperemen.info и получите доступ к закрытому разделу.\n⭐️ Приятного пользования",)
     user_data[user.id] = {}
-    logger.info("name of %s: %s зарегистрировался", user.first_name, update.message.text)
+    logger.info("Registration: %s: %s зарегистрировался", user.first_name, update.message.text)
     return ConversationHandler.END
 
 
@@ -200,7 +204,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def access(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Начало проверки доступа."""
     user = update.message.from_user
-    logger.info("name of %s: %s запустил access", user.first_name, update.message.text)
+    logger.info("Access: %s-%s запустил access", user.first_name, update.message.text)
     await update.message.reply_text(
         text=EMAIL_TEXT_CHECK,
     )
@@ -217,7 +221,7 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logic.add_user_tg(email, user.id)
         access = logic.check_user_category_website_by_subscription(user.id)
     else:
-        logger.info("name of %s: %s не имеет доступа", user.first_name, update.message.text)
+        logger.info("Access: %s-%s не имеет доступа", user.first_name, update.message.text)
         await update.message.reply_text(
             "У Вас нет доступа. Обратитесь в поддержку.",
         )
@@ -239,12 +243,13 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
         link_1 = await context.bot.create_chat_invite_link(chat_id=GROUP_1,
                                                            member_limit=1,)
         await update.message.reply_text(text=f"Чат 100$ {link_3['invite_link']}\nЧат 35$ {link_2['invite_link']}\nЧат 1$ {link_1['invite_link']}")
-
+    logger.info("Access: %s-%s получил ссылки на группы", user.first_name, update.message.text)
     return ConversationHandler.END
 
 
 async def clean_groups(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Запуск проверки пользователей и бан в случае истечения подписки."""
+    logger.info("Запущена очистка групп")
     user = update.message.from_user
     context.job_queue.run_repeating(alarm, 3600, chat_id=user.id) # !!!!!!
 
@@ -319,10 +324,10 @@ async def full_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main() -> None:
     """Start the bot."""
-    load_dotenv()
-    token = os.getenv('TOKEN')
+    # load_dotenv()
+    # token = os.getenv('TOKEN')
     persistence = PicklePersistence(filepath="conversationbot")
-    application = Application.builder().token(token).persistence(persistence).build()
+    application = Application.builder().token('5596869051:AAG6MEKfAbLxnohRQfxRSwxsD7VGZbOq7cU').persistence(persistence).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('help', help_command))
