@@ -324,6 +324,7 @@ async def full_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main() -> None:
     """Start the bot."""
+    # just get it
     load_dotenv()
     token = os.getenv('TOKEN')
     persistence = PicklePersistence(filepath="conversationbot")
