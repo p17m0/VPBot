@@ -199,6 +199,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def access(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Начало проверки доступа."""
+    user = update.message.from_user
     logger.info("name of %s: %s запустил access", user.first_name, update.message.text)
     await update.message.reply_text(
         text=EMAIL_TEXT_CHECK,
