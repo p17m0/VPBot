@@ -166,13 +166,9 @@ async def track_chats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def show_chats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Shows which chats the bot is in"""
-    user_ids = ", ".join(str(uid) for uid in context.bot_data.setdefault("user_ids", set()))
     group_ids = ", ".join(str(gid) for gid in context.bot_data.setdefault("group_ids", set()))
-    channel_ids = ", ".join(str(cid) for cid in context.bot_data.setdefault("channel_ids", set()))
     text = (
-        f"@{context.bot.username} is currently in a conversation with the user IDs {user_ids}."
         f" Moreover it is a member of the groups with IDs {group_ids} "
-        f"and administrator in the channels with IDs {channel_ids}."
     )
     await update.effective_message.reply_text(text)
 
@@ -249,50 +245,48 @@ async def clean_groups(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the alarm message."""
-    all_id = logic.take_all_id()
-    print(all_id)
+    boosty_1 = logic.take_all_id_boosty_category_1()
+    boosty_2 = logic.take_all_id_boosty_category_2()
+    boosty_3 = logic.take_all_id_boosty_category_3()
+
+    users_1 = logic.take_all_id_users_category_1()
+    users_2 = logic.take_all_id_users_category_1()
+    users_3 = logic.take_all_id_users_category_1()
+
     count = 0
-    for i in all_id:
-        print(all_id)
-        subscriptions = logic.check_subscription_website_by_date(i)
-        for subscription in subscriptions:
-            # !!! Проверка доступа пользователя !!!
-            try:
-                info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=i)
-                info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=i)
-                info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=i)
-                if subscription[0] == '712':
-                    if subscription[1] == 0:
-                        if info_1.status == 'member':
-                            if logic.is_user_boosty(i):
-                                email = logic.take_user_email_by_id(i)
-                                logic.create_user_subscribe_boosty(email, 1)
-                            else:
-                                count += 1
-                                await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i, until_date=1)
-                elif subscription[0] == '873':
-                    if subscription[1] == 0:
-                        if info_2.status == 'member':
-                            if logic.is_user_boosty(i):
-                                email = logic.take_user_email_by_id(i)
-                                logic.create_user_subscribe_boosty(email, 2)
-                            else:
-                                await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
-                                count += 1
-                else:
-                    if subscription[1] == 0:
-                        if info_3.status == 'member':
-                            if logic.is_user_boosty(i):
-                                email = logic.take_user_email_by_id(i)
-                                logic.create_user_subscribe_boosty(email, 3)
-                            else:
-                                count += 1
-                                await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i, until_date=1)
-                                await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
-                                await context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i, until_date=1)
-            except Exception as e:
-                print(e)
-            # !!! Конец проверки !!!
+
+    for i in users_1:
+        count += 1
+        await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i, until_date=1)
+    for i in users_2:
+        count += 1
+        await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
+    for i in users_3:
+        count += 1
+        await context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i, until_date=1)
+
+    for i in boosty_1:
+        info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=i)
+        if info_1.status == 'member':
+            logic.create_user_subscribe_boosty(email, 1)
+        else:
+            count += 1
+            await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i, until_date=1)
+    for i in boosty_2:
+        info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=i)
+        if info_1.status == 'member':
+            logic.create_user_subscribe_boosty(email, 1)
+        else:
+            count += 1
+            await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
+    for i in boosty_3:
+        info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=i)
+        if info_3.status == 'member':
+            logic.create_user_subscribe_boosty(email, 1)
+        else:
+            count += 1
+            await context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i, until_date=1)
+
     chat_id = context.job.chat_id
     await context.bot.send_message(chat_id=chat_id, text=f'Забанено людей без подписок: {count}')
 
@@ -339,9 +333,6 @@ def main() -> None:
 
     application.add_handler(access_handler)
 
-    # Run the bot until the user presses Ctrl-C
-    # We pass 'allowed_updates' handle *all* updates including `chat_member` updates
-    # To reset this, simply pass `allowed_updates=[]`
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
