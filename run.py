@@ -71,6 +71,7 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     # тут создание пользователя бусти
     if logic.check_user(email) or logic.check_tg_id_in_db(email):
+        logger.info("name of %s: %s не смог зарегистрироваться", user.first_name, update.message.text)
         await update.message.reply_text(
             "Вы уже зарегистрированы на сайте и у вас есть доступ, воспользуйтесь командой /access.",
         )
@@ -101,6 +102,7 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
         f"✅ Регистрация окончена\nВаш аккаунт создан\nEmail:{email}\nPassword:{password}\nТеперь перейдите на наш сайт eraperemen.info и получите доступ к закрытому разделу.\n⭐️ Приятного пользования",)
     user_data[user.id] = {}
+    logger.info("name of %s: %s зарегистрировался", user.first_name, update.message.text)
     return ConversationHandler.END
 
 
@@ -197,6 +199,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def access(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Начало проверки доступа."""
+    logger.info("name of %s: %s запустил access", user.first_name, update.message.text)
     await update.message.reply_text(
         text=EMAIL_TEXT_CHECK,
     )
@@ -213,6 +216,7 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logic.add_user_tg(email, user.id)
         access = logic.check_user_category_website_by_subscription(user.id)
     else:
+        logger.info("name of %s: %s не имеет доступа", user.first_name, update.message.text)
         await update.message.reply_text(
             "У Вас нет доступа. Обратитесь в поддержку.",
         )
