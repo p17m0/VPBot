@@ -81,9 +81,9 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         return ConversationHandler.END
 
     # !!! Проверка доступа пользователя !!!
-    info_1 = context.bot.get_chat_member(chat_id=GROUP_1, user_id=user.id)
-    info_2 = context.bot.get_chat_member(chat_id=GROUP_2, user_id=user.id)
-    info_3 = context.bot.get_chat_member(chat_id=GROUP_3, user_id=user.id)
+    info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=user.id)
+    info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=user.id)
+    info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=user.id)
 
     if info_1.status != 'member' and info_2.status != 'member' and info_3.status != 'member':
         logger.info("Registration: %s-%s не является участником групп", user.first_name, update.message.text)
@@ -287,7 +287,7 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     for i in boosty_1:
         if i == '':
             continue
-        info_1 = context.bot.get_chat_member(chat_id=GROUP_1, user_id=i)
+        info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=i)
         if info_1.status == 'member':
             logic.create_user_subscribe_boosty(email, 1)
         else:
@@ -296,7 +296,7 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     for i in boosty_2:
         if i == '':
             continue
-        info_2 = context.bot.get_chat_member(chat_id=GROUP_2, user_id=i)
+        info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=i)
         if info_2.status == 'member':
             logic.create_user_subscribe_boosty(email, 2)
         else:
@@ -305,7 +305,7 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     for i in boosty_3:
         if i == '':
             continue
-        info_3 = context.bot.get_chat_member(chat_id=GROUP_3, user_id=i)
+        info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=i)
         if info_3.status == 'member':
             logic.create_user_subscribe_boosty(email, 3)
         else:
