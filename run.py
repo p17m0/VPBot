@@ -246,7 +246,7 @@ async def clean_groups(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the alarm message."""
     chat_id = context.job.chat_id
-    await context.bot.send_message(chat_id=chat_id, text='Начат бан пользователей')
+    await context.bot.send_message(chat_id=chat_id, text='Начат бан пользователей.')
     boosty_1 = logic.take_all_id_boosty_category_1()
     boosty_2 = logic.take_all_id_boosty_category_2()
     boosty_3 = logic.take_all_id_boosty_category_3()
@@ -258,33 +258,45 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     count = 0
 
     for i in users_1:
+        if i == '':
+            continue
         count += 1
-        await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i, until_date=1)
+        await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i)
     for i in users_2:
+        if i == '':
+            continue
         count += 1
-        await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
+        await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i)
     for i in users_3:
+        if i == '':
+            continue
         count += 1
-        await context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i, until_date=1)
+        await context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i)
 
     for i in boosty_1:
+        if i == '':
+            continue
         info_1 = await context.bot.get_chat_member(chat_id=GROUP_1, user_id=i)
         if info_1.status == 'member':
             logic.create_user_subscribe_boosty(email, 1)
         else:
             count += 1
-            await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i, until_date=1)
+            await context.bot.ban_chat_member(chat_id=GROUP_1, user_id=i)
     for i in boosty_2:
+        if i == '':
+            continue
         info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=i)
-        if info_1.status == 'member':
-            logic.create_user_subscribe_boosty(email, 1)
+        if info_2.status == 'member':
+            logic.create_user_subscribe_boosty(email, 2)
         else:
             count += 1
             await context.bot.ban_chat_member(chat_id=GROUP_2, user_id=i, until_date=1)
     for i in boosty_3:
+        if i == '':
+            continue
         info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=i)
         if info_3.status == 'member':
-            logic.create_user_subscribe_boosty(email, 1)
+            logic.create_user_subscribe_boosty(email, 3)
         else:
             count += 1
             await context.bot.ban_chat_member(chat_id=GROUP_3, user_id=i, until_date=1)
