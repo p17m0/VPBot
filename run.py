@@ -43,6 +43,8 @@ async def registration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     """Stores the selected FIO and asks for a education."""
     user_data = context.user_data
     user = update.message.from_user
+    if user.id in (GROUP_1, GROUP_2, GROUP_3):
+        return ConversationHandler.END
     user_data[user.id] = {}
     logger.info("Registration: %s: %s начал регистрацию", user.first_name, update.message.text)
     await update.message.reply_text(
@@ -206,6 +208,8 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def access(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Начало проверки доступа."""
     user = update.message.from_user
+    if user.id in (GROUP_1, GROUP_2, GROUP_3):
+        return ConversationHandler.END
     logger.info("Access: %s-%s запустил access", user.first_name, update.message.text)
     await update.message.reply_text(
         text=EMAIL_TEXT_CHECK,
