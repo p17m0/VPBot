@@ -2,6 +2,15 @@ import requests
 import time
 import json
 import datetime
+import logging
+
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO,
+    filename='home/bot/VPBot/bot.log'
+)
+
+logger = logging.getLogger(__name__)
+
 
 def create_user_subscribe_boosty(email, category):
     '''
@@ -21,10 +30,9 @@ def create_user_subscribe_boosty(email, category):
             "subscribe": f"{subscribe}"
         }
         req = requests.post(url, data=params)
-        print(req.status_code)
-        print(req.text)
+        logger.info("create_user: \nreq status ошибка: %s", req.status_code)
     except Exception as e:
-        print(e)
+        logger.info("create_user_subscribe_boosty: \nошибка: %s", e)
 
 def create_user(email, password, telegram_id):
     '''
@@ -40,10 +48,10 @@ def create_user(email, password, telegram_id):
             "boosty_user": "да",
         }
         req = requests.post(url, params)
-        print(req.status_code)
-        print(req.text)
+
+        logger.info("create_user: \nreq status ошибка: %s", req.status_code)
     except Exception as e:
-        print(e)
+        logger.info("create_user: \nошибка: %s", e)
 
     return email in req.text
 
@@ -51,6 +59,7 @@ def add_user_tg(email, telegram_id):
     '''
     Добавление id пользователю, если tg_id нет.
     '''
+    res = ''
     try:
         url = 'https://eraperemen.info/wp-admin/admin-ajax.php?action=create_user'
         params = {
@@ -60,12 +69,11 @@ def add_user_tg(email, telegram_id):
         }
         req = requests.post(url, params)
         time.sleep(5)
-        print(req.status_code)
-        print(time.req.text)
+        res = req.text
     except Exception as e:
-        print(e)
+        logger.info("add_user_tg: \nошибка: %s", e)
 
-    return email in req.text
+    return email in res
 
 def check_tg_id_in_db(email):
     tg_id = ''
@@ -76,9 +84,10 @@ def check_tg_id_in_db(email):
         }
         req = requests.get(url, params)
         tg_id = req.text
-        print(req.status_code)
+
+        logger.info("check_tg_id_in_db: \nreq status: %s", req.status_code)
     except Exception as e:
-        print(e)
+        logger.info("check_tg_id_in_db: \nошибка: %s", e)
     return tg_id != ''
 
 def check_user_category_website_by_subscription(telegram_id):
@@ -145,34 +154,6 @@ def take_user_email_by_id(telegram_id):
         print(e)
     return email
 
-def check_subscription_website_by_date(telegram_id):
-    '''
-    Проверка действующей подписки пользователя с сайта. Возвращает уровень доступа.
-    '''
-    email = take_user_email_by_id(telegram_id)
-    subscriptions = take_user_subscriptions(telegram_id) # поправить надо, чтобы получать каждую подписку или список
-    lst = []
-    for subscription in subscriptions:
-
-        try:
-            url = f'https://eraperemen.info/wp-admin/admin-ajax.php?action=end_date&email={email}&subscribe={subscription}'
-            req = requests.get(url)
-            print(req.status_code)
-            # ЗДЕСЬ DATETIME
-            date = req.text.split()
-            date = datetime.datetime.strptime(date[0], '%Y-%m-%d').date()
-            today = datetime.date.today()
-            date = date > today
-
-            if date:
-                working = 1
-            else:
-                working = 0
-
-            lst.append([subscription, working])
-        except Exception as e:
-            print(e)
-    return lst
 
 def check_user(email):
     """Проверяет наличие пользователя в бд по email."""
