@@ -86,7 +86,7 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=user.id)
 
     if info_1.status != 'member' and info_2.status != 'member' and info_3.status != 'member':
-        logger.info("Registration: %s-%s не является участником групп", user.first_name, update.message.text)
+        logger.info("Registration: %s-%s не является участником групп \n Группа 1$: %s, Группа 35$: %s, Группа 100$: %s", user.first_name, update.message.text, info_1, info_2, info_3)
         await update.message.reply_text(
             text=DENY_TEXT,
         )
