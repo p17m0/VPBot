@@ -68,16 +68,18 @@ def add_user_tg(email, telegram_id):
     return email in req.text
 
 def check_tg_id_in_db(email):
+    tg_id = ''
     try:
         url = 'https://eraperemen.info/wp-admin/admin-ajax.php?action=get_tg_id'
         params = {
             "email": f"{email}",
         }
         req = requests.get(url, params)
+        tg_id = req.text
         print(req.status_code)
     except Exception as e:
         print(e)
-    return req.text != ''
+    return tg_id != ''
 
 def check_user_category_website_by_subscription(telegram_id):
     '''

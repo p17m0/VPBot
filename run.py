@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Приветствует пользоателя и создаёт меня для ссылки на чаты."""
     user = update.message.from_user
-    logger.info("Start: %s: %s начал регистрацию", user.first_name, update.message.text)
+    logger.info("Start: %s: %s запустил бота", user.first_name, update.message.text)
     reply_markup = ReplyKeyboardMarkup([['/access - Получение доступа к группам.'],
                                         ['/registration - Регистрация на сайте.'],
                                         ['/help - Помощь с ботом.'],])
