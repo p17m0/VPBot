@@ -139,6 +139,7 @@ def take_user_email_by_id(telegram_id):
     """
     Получает маил по tg_id.
     """
+    email = ''
     try:
         url = 'https://eraperemen.info/wp-admin/admin-ajax.php?action=user_email'
         params = {
