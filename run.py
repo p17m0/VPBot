@@ -85,18 +85,20 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     info_2 = await context.bot.get_chat_member(chat_id=GROUP_2, user_id=user.id)
     info_3 = await context.bot.get_chat_member(chat_id=GROUP_3, user_id=user.id)
 
-    if info_1.status != 'member' and info_2.status != 'member' and info_3.status != 'member':
-        logger.info("Registration: %s-%s не является участником групп \n Группа 1$: %s, Группа 35$: %s, Группа 100$: %s", user.first_name, update.message.text, info_1, info_2, info_3)
+    if (info_1.status not in ('member', 'restricted', 'admin') and
+       info_2.status not in ('member', 'restricted', 'admin') and
+       info_3.status not in ('member', 'restricted', 'admin')):
+        logger.info("Registration: %s-%s не является участником групп \n Группа 1$: %s, Группа 35$: %s, Группа 100$: %s", user.first_name, update.message.text, info_1.status, info_2.status, info_3.status)
         await update.message.reply_text(
             text=DENY_TEXT,
         )
         return ConversationHandler.END
 
-    if info_1.status == 'member' or info_1.status == 'administrator': # 1$
+    if info_1.status in ('member', 'restricted', 'admin'): # 1$
         access = 1
-    if info_2.status == 'member' or info_1.status == 'administrator': # 35$
+    if info_2.status in ('member', 'restricted', 'admin'): # 35$
         access = 2
-    if info_3.status == 'member' or info_1.status == 'administrator': # 100$
+    if info_3.status in ('member', 'restricted', 'admin'): # 100$
         access = 3
 
     logic.create_user(email, password, user.id)
