@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Приветствует пользоателя и создаёт меня для ссылки на чаты."""
     user = update.message.from_user
-    logger.info("Start: %s: %s запустил бота", user.first_name, update.message.text)
+    logger.info("Start: %s: %s запустил", user.first_name, update.message.text)
     reply_markup = ReplyKeyboardMarkup([['/access - Получение доступа к группам.'],
                                         ['/registration - Регистрация на сайте.'],
                                         ['/help - Помощь с ботом.'],])
@@ -230,19 +230,19 @@ async def links(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
 
     if access == 1: # 1$
-        link = context.bot.create_chat_invite_link(chat_id=GROUP_1,
+        link = await context.bot.create_chat_invite_link(chat_id=GROUP_1,
                                                          member_limit=1,)
         await update.message.reply_text(text=f"Чат 1$ {link['invite_link']}")
     if access == 2: # 35$
-        link = context.bot.create_chat_invite_link(chat_id=GROUP_2,
+        link = await context.bot.create_chat_invite_link(chat_id=GROUP_2,
                                                          member_limit=1,)
         await update.message.reply_text(text=f"Чат 15$ {link['invite_link']}")
     if access == 3: # 100$
-        link_3 = context.bot.create_chat_invite_link(chat_id=GROUP_3,
+        link_3 = await context.bot.create_chat_invite_link(chat_id=GROUP_3,
                                                            member_limit=1,)
-        link_2 = context.bot.create_chat_invite_link(chat_id=GROUP_2,
+        link_2 = await context.bot.create_chat_invite_link(chat_id=GROUP_2,
                                                            member_limit=1,)
-        link_1 = context.bot.create_chat_invite_link(chat_id=GROUP_1,
+        link_1 = await context.bot.create_chat_invite_link(chat_id=GROUP_1,
                                                            member_limit=1,)
         await update.message.reply_text(text=f"Чат 100$ {link_3['invite_link']}\nЧат 35$ {link_2['invite_link']}\nЧат 1$ {link_1['invite_link']}")
     logger.info("Access: %s-%s получил ссылки на группы", user.first_name, update.message.text)
