@@ -30,7 +30,7 @@ def create_user_subscribe_boosty(email, category):
             "subscribe": f"{subscribe}"
         }
         req = requests.post(url, data=params)
-        logger.info("create_user: \nreq status ошибка: %s", req.status_code)
+        logger.info("create_user: \nreq status: %s", req.status_code)
     except Exception as e:
         logger.info("create_user_subscribe_boosty: \nошибка: %s", e)
 
@@ -49,7 +49,7 @@ def create_user(email, password, telegram_id):
         }
         req = requests.post(url, params)
 
-        logger.info("create_user: \nreq status ошибка: %s", req.status_code)
+        logger.info("create_user: \nreq status: %s", req.status_code)
     except Exception as e:
         logger.info("create_user: \nошибка: %s", e)
 
