@@ -108,7 +108,7 @@ async def password(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
         f"✅ Регистрация окончена\nВаш аккаунт создан\nEmail:{email}\nPassword:{password}\nТеперь перейдите на наш сайт eraperemen.info и получите доступ к закрытому разделу.\n⭐️ Приятного пользования",)
     user_data[user.id] = {}
-    logger.info("Registration: %s: %s зарегистрировался", user.first_name, update.message.text)
+    logger.info("Registration: %s: %s зарегистрировался\n Группа 1$: %s, Группа 35$: %s, Группа 100$: %s", user.first_name, update.message.text, info_1.status, info_2.status, info_3.status)
     return ConversationHandler.END
 
 
